@@ -1,0 +1,24 @@
+                  List of tables
+ Schema |         Name          | Type  |  Owner   
+--------+-----------------------+-------+----------
+ public | alembic_version       | table | poc_user
+ public | assessment_questions  | table | poc_user
+ public | assessment_sections   | table | poc_user
+ public | assessments           | table | poc_user
+ public | candidate_invitations | table | poc_user
+ public | candidate_responses   | table | poc_user
+ public | candidate_sessions    | table | poc_user
+ public | difficulty_levels     | table | poc_user
+ public | org_settings          | table | poc_user
+ public | organizations         | table | poc_user
+ public | question_code_stubs   | table | poc_user
+ public | question_options      | table | poc_user
+ public | question_tags         | table | poc_user
+ public | question_test_cases   | table | poc_user
+ public | questions             | table | poc_user
+ public | resumes               | table | poc_user
+ public | skills                | table | poc_user
+ public | technologies          | table | poc_user
+ public | users                 | table | poc_user
+(19 rows)
+

@@ -1,0 +1,49 @@
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment files
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+dist/
+build/
+
+# Python
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Docker
+docker-compose.override.yml
+
+# Uploads
+uploads/
+
+# Logs
+*.log
+
+# Coverage
+htmlcov/
+.coverage
+coverage.xml
