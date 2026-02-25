@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import WebcamMonitor from './WebcamMonitor';
+import AudioMonitor from './AudioMonitor';
+import ScreenRecorder from './ScreenRecorder';
 
 interface ProctoringConfig {
     enabled: boolean;
@@ -6,6 +9,10 @@ interface ProctoringConfig {
     require_fullscreen?: boolean;
     block_copy_paste?: boolean;
     detect_tab_switch?: boolean;
+    webcam_monitoring?: boolean;
+    screen_recording?: boolean;
+    audio_monitoring?: boolean;
+    id_verification?: boolean;
 }
 
 interface ProctoringGuardProps {
@@ -65,6 +72,25 @@ export default function ProctoringGuard({ config, candidateToken, onTerminated, 
             }
         } catch {
             // Silently fail — don't block the test
+        }
+
+        // Also record as a structured proctoring event
+        try {
+            await fetch('/api/v1/proctoring/event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${candidateToken}`,
+                },
+                body: JSON.stringify({
+                    event_type: type,
+                    severity: ['fullscreen_exit', 'dev_tools'].includes(type) ? 'critical' : 'warning',
+                    details,
+                    client_timestamp: new Date().toISOString(),
+                }),
+            });
+        } catch {
+            // Best effort
         }
     }, [candidateToken, onTerminated]);
 
@@ -217,6 +243,25 @@ export default function ProctoringGuard({ config, candidateToken, onTerminated, 
                     ⚠️ {violations}/{maxViolations}
                 </div>
             )}
+
+            {/* Webcam Monitor */}
+            <WebcamMonitor
+                candidateToken={candidateToken}
+                enabled={!!config.webcam_monitoring}
+                intervalSeconds={30}
+            />
+
+            {/* Audio Monitor */}
+            <AudioMonitor
+                candidateToken={candidateToken}
+                enabled={!!config.audio_monitoring}
+            />
+
+            {/* Screen Recorder */}
+            <ScreenRecorder
+                candidateToken={candidateToken}
+                enabled={!!config.screen_recording}
+            />
 
             {children}
         </div>

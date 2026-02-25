@@ -9,7 +9,7 @@ import uuid
 import aiofiles
 import pdfplumber
 from docx import Document as DocxDocument
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -270,9 +270,9 @@ async def get_resume_skills(
 
 @router.post("/{resume_id}/create-assessment")
 async def create_assessment_from_resume(
+    request: Request,
     resume_id: str,
     body: dict = {},
-    request: "Request" = None,
     current_user: User = Depends(require_roles("admin", "hr", "tech")),
     db: AsyncSession = Depends(get_db),
 ):
@@ -288,7 +288,7 @@ async def create_assessment_from_resume(
     """
     import secrets
     from datetime import datetime, timezone
-    from fastapi import Request
+
 
     from app.ai.agents.question_generator import QuestionGeneratorAgent
     from app.models.assessment import Assessment, AssessmentQuestion

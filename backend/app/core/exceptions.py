@@ -29,6 +29,11 @@ class BadRequestException(AppException):
 
 
 def register_exception_handlers(app: FastAPI) -> None:
+    import logging
+    import traceback
+
+    logger = logging.getLogger("app.exceptions")
+
     @app.exception_handler(AppException)
     async def app_exception_handler(request: Request, exc: AppException):
         return JSONResponse(
@@ -41,4 +46,18 @@ def register_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=exc.status_code,
             content={"detail": exc.detail},
+        )
+
+    @app.exception_handler(Exception)
+    async def unhandled_exception_handler(request: Request, exc: Exception):
+        logger.error(
+            "Unhandled error on %s %s: %s\n%s",
+            request.method,
+            request.url.path,
+            exc,
+            traceback.format_exc(),
+        )
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(exc)},
         )

@@ -18,7 +18,25 @@ from app.models.system_settings import SystemSettings
 logger = logging.getLogger(__name__)
 
 
-async def _get_smtp_config(db: AsyncSession) -> dict[str, Any]:
+def _get_gmail_config() -> dict[str, Any]:
+    """Build SMTP config for Gmail using env vars."""
+    from app.config import settings as app_settings
+
+    if not app_settings.gmail_email or not app_settings.gmail_app_password:
+        logger.warning("Gmail credentials not set in .env — skipping email")
+        return {}
+    return {
+        "host": "smtp.gmail.com",
+        "port": 587,
+        "username": app_settings.gmail_email,
+        "password": app_settings.gmail_app_password,
+        "from_address": app_settings.gmail_email,
+        "from_name": "Assessment Platform",
+        "use_tls": True,
+    }
+
+
+async def _get_smtp_config_from_db(db: AsyncSession) -> dict[str, Any]:
     """Load SMTP configuration from system_settings singleton."""
     result = await db.execute(select(SystemSettings))
     settings = result.scalar_one_or_none()
@@ -33,6 +51,25 @@ async def _get_smtp_config(db: AsyncSession) -> dict[str, Any]:
         "from_name": settings.smtp_from_name or "Assessment Platform",
         "use_tls": settings.smtp_use_tls if settings.smtp_use_tls is not None else True,
     }
+
+
+async def _get_email_config(db: AsyncSession) -> dict[str, Any]:
+    """Resolve email config based on EMAIL_TYPE setting.
+
+    - "local" → Gmail via .env credentials
+    - "smtp"  → DB-configured SMTP (system_settings table)
+    - "none"  → disabled
+    """
+    from app.config import settings as app_settings
+
+    email_type = (app_settings.email_type or "none").strip().lower()
+    if email_type == "local":
+        return _get_gmail_config()
+    elif email_type == "smtp":
+        return await _get_smtp_config_from_db(db)
+    else:
+        logger.info("EMAIL_TYPE=%s — email sending disabled", email_type)
+        return {}
 
 
 def _send_email_sync(
@@ -90,7 +127,7 @@ async def send_invitation_email(
     organization_name: str = "",
 ) -> bool:
     """Send a candidate invitation email."""
-    smtp_config = await _get_smtp_config(db)
+    smtp_config = await _get_email_config(db)
 
     subject = f"You're Invited: {assessment_title}"
     if organization_name:
@@ -172,7 +209,7 @@ async def send_completion_notification(
 
     Returns count of emails sent.
     """
-    smtp_config = await _get_smtp_config(db)
+    smtp_config = await _get_email_config(db)
     if not smtp_config.get("host"):
         return 0
 
@@ -240,7 +277,7 @@ async def send_violation_alert(
     max_violations: int,
 ) -> int:
     """Send alert when a candidate has a proctoring violation."""
-    smtp_config = await _get_smtp_config(db)
+    smtp_config = await _get_email_config(db)
     if not smtp_config.get("host"):
         return 0
 

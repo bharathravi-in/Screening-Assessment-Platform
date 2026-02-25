@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { questionService } from '../../services/questionService';
 import { taxonomyService } from '../../services/taxonomyService';
@@ -15,6 +15,9 @@ import {
   Trash2,
   Eye,
   Sparkles,
+  Download,
+  Upload,
+  FileText,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -58,6 +61,10 @@ export default function QuestionBankPage() {
   // Preview modal
   const [previewQuestion, setPreviewQuestion] = useState<Question | null>(null);
 
+  // CSV upload ref
+  const csvFileRef = useRef<HTMLInputElement>(null);
+  const [csvUploading, setCsvUploading] = useState(false);
+
   // AI Generator modal
   const [showAIGenerator, setShowAIGenerator] = useState(false);
 
@@ -88,12 +95,12 @@ export default function QuestionBankPage() {
   }, [fetchQuestions]);
 
   useEffect(() => {
-    taxonomyService.getTechnologies().then(setTechnologies).catch(() => {});
+    taxonomyService.getTechnologies().then(setTechnologies).catch(() => { });
   }, []);
 
   useEffect(() => {
     if (selectedTechId) {
-      taxonomyService.getSkills(selectedTechId).then(setSkills).catch(() => {});
+      taxonomyService.getSkills(selectedTechId).then(setSkills).catch(() => { });
     } else {
       setSkills([]);
       setFilterSkillId('');
@@ -134,6 +141,68 @@ export default function QuestionBankPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={async () => {
+              try {
+                await questionService.exportQuestions();
+                toast.success('Questions exported!');
+              } catch {
+                toast.error('Export failed');
+              }
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+          >
+            <Download size={16} />
+            Export CSV
+          </button>
+          <button
+            onClick={() => {
+              const tpl = 'technology,skill,type,difficulty,title,body,option_a,option_b,option_c,option_d,correct_answer,explanation,time_limit_seconds,max_score\n';
+              const blob = new Blob([tpl], { type: 'text/csv' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'questions_template.csv';
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+          >
+            <FileText size={16} />
+            Template
+          </button>
+          <input
+            type="file"
+            ref={csvFileRef}
+            accept=".csv"
+            className="hidden"
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              if (!f) return;
+              setCsvUploading(true);
+              try {
+                const result = await questionService.bulkUploadQuestions(f);
+                toast.success(`Created ${result.created_questions} questions (${result.skipped} skipped)`);
+                fetchQuestions();
+              } catch {
+                toast.error('CSV upload failed');
+              } finally {
+                setCsvUploading(false);
+                if (csvFileRef.current) csvFileRef.current.value = '';
+              }
+            }}
+          />
+          <button
+            onClick={() => csvFileRef.current?.click()}
+            disabled={csvUploading}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+          >
+            {csvUploading ? <Loader2 className="animate-spin" size={16} /> : <Upload size={16} />}
+            Import CSV
+          </button>
           <button
             onClick={() => setShowAIGenerator(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"

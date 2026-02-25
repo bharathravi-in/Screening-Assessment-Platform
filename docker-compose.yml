@@ -6,11 +6,11 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-poc_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-poc_password}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-poc_user}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-poc_user} -d ${POSTGRES_DB:-assessments_db}" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -19,6 +19,8 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-poc_user}:${POSTGRES_PASSWORD:-poc_password}@db:5432/${POSTGRES_DB:-assessments_db}
     env_file:
       - .env
     depends_on:

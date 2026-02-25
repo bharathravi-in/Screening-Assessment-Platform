@@ -85,6 +85,9 @@ class QuestionCreate(BaseModel):
 
 
 class QuestionUpdate(BaseModel):
+    type: Optional[str] = Field(
+        None, pattern="^(mcq|multi_select|short_answer|debugging|code_completion|coding|system_design|scenario)$"
+    )
     title: Optional[str] = Field(None, min_length=1, max_length=500)
     body: Optional[str] = Field(None, min_length=1)
     explanation: Optional[str] = None

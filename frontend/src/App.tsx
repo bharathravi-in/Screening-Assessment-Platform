@@ -14,6 +14,7 @@ import UsersPage from './pages/admin/UsersPage';
 import OrganizationsPage from './pages/admin/OrganizationsPage';
 import OrgSettingsPage from './pages/admin/OrgSettingsPage';
 import SystemSettingsPage from './pages/admin/SystemSettingsPage';
+import BenchmarkingPage from './pages/admin/BenchmarkingPage';
 import HRDashboard from './pages/hr/DashboardPage';
 import AssessmentListPage from './pages/hr/AssessmentListPage';
 import AssessmentFormPage from './pages/hr/AssessmentFormPage';
@@ -67,6 +68,7 @@ function App() {
                 <Route path="/admin/questions/new" element={<QuestionFormPage />} />
                 <Route path="/admin/questions/:id/edit" element={<QuestionFormPage />} />
                 <Route path="/admin/settings" element={<SystemSettingsPage />} />
+                <Route path="/admin/benchmarking" element={<BenchmarkingPage />} />
               </Route>
             </Route>
 
@@ -123,30 +125,6 @@ function App() {
         </Routes>
       </BrowserRouter>
     </ErrorBoundary>
-  );
-}
-
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div>
-      <h1
-        className="text-2xl font-bold mb-4"
-        style={{ color: 'var(--text-primary)' }}
-      >
-        {title}
-      </h1>
-      <div
-        className="rounded-xl p-8 text-center"
-        style={{
-          backgroundColor: 'var(--card-bg)',
-          border: '1px solid var(--border)',
-        }}
-      >
-        <p style={{ color: 'var(--text-muted)' }}>
-          This page will be implemented in the next phase.
-        </p>
-      </div>
-    </div>
   );
 }
 

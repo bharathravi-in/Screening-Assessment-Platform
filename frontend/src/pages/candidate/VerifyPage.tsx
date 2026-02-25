@@ -115,11 +115,11 @@ export default function VerifyPage() {
 
   return (
     <div
-      className="flex-1 flex items-center justify-center px-4 py-8"
+      className="flex-1 flex items-center justify-center px-4 py-6 sm:py-8"
       style={{ minHeight: 'calc(100vh - 56px)' }}
     >
       <div
-        className="w-full max-w-lg rounded-xl p-8"
+        className="w-full max-w-lg rounded-xl p-5 sm:p-8"
         style={{
           backgroundColor: 'var(--card-bg)',
           boxShadow: 'var(--card-shadow)',

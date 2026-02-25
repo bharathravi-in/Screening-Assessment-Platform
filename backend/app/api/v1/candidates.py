@@ -184,9 +184,9 @@ async def bulk_invite_candidates(
 
 @router.post("/invite/upload-csv", status_code=status.HTTP_201_CREATED)
 async def upload_csv_invite(
+    request: Request,
     assessment_id: str = Query(...),
     file: UploadFile = FastAPIFile(...),
-    request: Request = None,
     current_user: User = Depends(require_roles("admin", "hr", "tech")),
     db: AsyncSession = Depends(get_db),
 ):

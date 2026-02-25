@@ -74,6 +74,7 @@ export interface ResponseSaveRequest {
   code_language?: string | null;
   time_spent_seconds?: number;
   is_flagged?: boolean;
+  code_snapshots?: { timestamp: string; code: string; language: string }[] | null;
 }
 
 export interface ResponseSaveResponse {

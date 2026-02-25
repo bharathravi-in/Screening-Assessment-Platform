@@ -16,6 +16,9 @@ from app.models.user import User
 from app.schemas.analytics import (
     AnalyticsOverview,
     AssessmentStat,
+    BenchmarkData,
+    BenchmarkingResponse,
+    CohortStat,
     DailyCount,
     DifficultyPerformance,
     OverviewStats,
@@ -252,4 +255,114 @@ async def get_analytics_overview(
         difficulty_performance=difficulty_performance,
         type_performance=type_performance,
         daily_sessions=daily_sessions,
+    )
+
+
+@router.get("/cohorts", response_model=list[CohortStat])
+async def get_cohort_analytics(
+    group_by: str = Query("source", pattern="^(source|role)$"),
+    user: User = Depends(require_roles("admin", "hr")),
+    db: AsyncSession = Depends(get_db),
+):
+    org_id = user.organization_id
+    
+    # In a real system, 'source' or 'role' would be fields in CandidateInvitation metadata or a dedicated column.
+    # Here we'll use candidate_invitations.metadata -> 'source' as an example.
+    
+    if group_by == "source":
+        # Extract source from JSONB metadata
+        source_label = CandidateInvitation.metadata_["source"].astext.label("cohort_name")
+    else:
+        # Fallback to assessment title as a proxy for 'role' if not explicitly defined
+        source_label = Assessment.title.label("cohort_name")
+
+    query = (
+        select(
+            source_label,
+            func.count(CandidateSession.id).label("count"),
+            func.avg(CandidateSession.score_pct).label("avg_score"),
+            func.sum(case((CandidateSession.is_passed == True, 1), else_=0)).label("pass_cnt"),
+            func.sum(case((CandidateSession.status == "completed", 1), else_=0)).label("comp_cnt"),
+        )
+        .join(CandidateInvitation, CandidateInvitation.id == CandidateSession.invitation_id)
+        .join(Assessment, Assessment.id == CandidateSession.assessment_id)
+        .where(CandidateSession.organization_id == org_id)
+        .group_by("cohort_name")
+    )
+
+    result = await db.execute(query)
+    cohorts = []
+    for row in result.all():
+        if not row.cohort_name: continue
+        comp = int(row.comp_cnt or 0)
+        cohorts.append(CohortStat(
+            name=row.cohort_name,
+            count=row.count,
+            avg_score=round(float(row.avg_score), 1) if row.avg_score is not None else None,
+            pass_rate=round(int(row.pass_cnt or 0) / comp * 100, 1) if comp else None
+        ))
+    
+    return cohorts
+
+
+@router.get("/benchmark", response_model=BenchmarkingResponse)
+async def get_benchmarking_data(
+    user: User = Depends(require_roles("admin", "hr")),
+    db: AsyncSession = Depends(get_db),
+):
+    org_id = user.organization_id
+
+    # 1. Organization performance by type
+    org_type_q = await db.execute(
+        select(
+            Question.type,
+            func.avg(
+                case(
+                    (CandidateResponse.max_score > 0,
+                     CandidateResponse.final_score / CandidateResponse.max_score * 100),
+                    else_=None,
+                )
+            ).label("avg_pct")
+        )
+        .join(CandidateResponse, CandidateResponse.question_id == Question.id)
+        .join(CandidateSession, CandidateSession.id == CandidateResponse.session_id)
+        .where(CandidateSession.organization_id == org_id, CandidateResponse.is_submitted == True)
+        .group_by(Question.type)
+    )
+    org_types = {row.type: row.avg_pct for row in org_type_q.all()}
+
+    # 2. Platform-wide average by type (Simulated with a slightly different query or hardcoded offsets for demo)
+    platform_type_q = await db.execute(
+        select(
+            Question.type,
+            func.avg(
+                case(
+                    (CandidateResponse.max_score > 0,
+                     CandidateResponse.final_score / CandidateResponse.max_score * 100),
+                    else_=None,
+                )
+            ).label("avg_pct")
+        )
+        .join(CandidateResponse, CandidateResponse.question_id == Question.id)
+        .where(CandidateResponse.is_submitted == True)
+        .group_by(Question.type)
+    )
+    platform_types = {row.type: row.avg_pct for row in platform_type_q.all()}
+
+    by_type = []
+    for q_type, org_score in org_types.items():
+        by_type.append(BenchmarkData(
+            category=q_type,
+            org_score=round(float(org_score), 1) if org_score is not None else None,
+            industry_avg=round(float(platform_types.get(q_type, 65.0)), 1)
+        ))
+
+    # 3. Calculate an aggregate percentile (Simulated)
+    # In a real app, this would be a rank() over all orgs
+    percentile = 75.5 # Mock value
+    
+    return BenchmarkingResponse(
+        by_skill=[], # Placeholder for skill-based (taxonomy) benchmarking
+        by_type=by_type,
+        percentile=percentile
     )

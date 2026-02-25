@@ -4,6 +4,7 @@ import json
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -438,4 +439,48 @@ async def bulk_upload_taxonomy(
         "created_skills": created_skills,
         "skipped": skipped,
     }
+
+
+# ---------------------------------------------------------------------------
+# GET /taxonomy/export  — Download taxonomy as CSV
+# ---------------------------------------------------------------------------
+
+@router.get("/export")
+async def export_taxonomy(
+    current_user: User = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db),
+):
+    """Export all taxonomy data as a CSV file."""
+    scope = _tech_scope_filter(current_user)
+    query = (
+        select(Technology)
+        .options(selectinload(Technology.skills))
+        .where(scope)
+        .order_by(Technology.name)
+    )
+    result = await db.execute(query)
+    technologies = result.unique().scalars().all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["technology", "category", "skill", "description"])
+
+    for tech in technologies:
+        if not tech.skills:
+            writer.writerow([tech.name, tech.category or "other", "", ""])
+        else:
+            for skill in sorted(tech.skills, key=lambda s: s.name):
+                writer.writerow([
+                    tech.name,
+                    tech.category or "other",
+                    skill.name,
+                    skill.description or "",
+                ])
+
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=taxonomy_export.csv"},
+    )
 

@@ -14,6 +14,7 @@ interface SkillGapData {
     assessment_count: number;
     candidate_count: number;
     trend: 'up' | 'down' | 'stable';
+    industry_avg?: number;
 }
 
 interface SkillGapDashboardProps {
@@ -25,20 +26,34 @@ export default function SkillGapDashboard(_props: SkillGapDashboardProps) {
     const [dateRange, setDateRange] = useState('30');
     const [skillData, setSkillData] = useState<SkillGapData[]>([]);
 
+    const [showIndustryCompare, setShowIndustryCompare] = useState(false);
+
     useEffect(() => {
-        // Simulated skill gap data — replace with API call when analytics endpoint is extended
-        const mockData: SkillGapData[] = [
-            { skill: 'JavaScript', avg_score: 72, assessment_count: 15, candidate_count: 45, trend: 'up' },
-            { skill: 'Python', avg_score: 68, assessment_count: 12, candidate_count: 38, trend: 'stable' },
-            { skill: 'React', avg_score: 65, assessment_count: 10, candidate_count: 32, trend: 'up' },
-            { skill: 'SQL', avg_score: 58, assessment_count: 8, candidate_count: 28, trend: 'down' },
-            { skill: 'System Design', avg_score: 45, assessment_count: 6, candidate_count: 18, trend: 'down' },
-            { skill: 'Docker', avg_score: 52, assessment_count: 5, candidate_count: 15, trend: 'stable' },
-            { skill: 'TypeScript', avg_score: 61, assessment_count: 7, candidate_count: 22, trend: 'up' },
-            { skill: 'Node.js', avg_score: 55, assessment_count: 6, candidate_count: 20, trend: 'stable' },
-        ];
-        setSkillData(mockData);
-        setLoading(false);
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                // For demo/sim, we'll keep the mock but simulate an API delay
+                await new Promise(r => setTimeout(r, 800));
+
+                const mockData: SkillGapData[] = [
+                    { skill: 'JavaScript', avg_score: 72, assessment_count: 15, candidate_count: 45, trend: 'up', industry_avg: 65 },
+                    { skill: 'Python', avg_score: 68, assessment_count: 12, candidate_count: 38, trend: 'stable', industry_avg: 70 },
+                    { skill: 'React', avg_score: 65, assessment_count: 10, candidate_count: 32, trend: 'up', industry_avg: 62 },
+                    { skill: 'SQL', avg_score: 58, assessment_count: 8, candidate_count: 28, trend: 'down', industry_avg: 60 },
+                    { skill: 'System Design', avg_score: 45, assessment_count: 6, candidate_count: 18, trend: 'down', industry_avg: 55 },
+                    { skill: 'Docker', avg_score: 52, assessment_count: 5, candidate_count: 15, trend: 'stable', industry_avg: 50 },
+                    { skill: 'TypeScript', avg_score: 61, assessment_count: 7, candidate_count: 22, trend: 'up', industry_avg: 58 },
+                    { skill: 'Node.js', avg_score: 55, assessment_count: 6, candidate_count: 20, trend: 'stable', industry_avg: 54 },
+                ];
+                setSkillData(mockData);
+            } catch (error) {
+                console.error('Failed to fetch skill data', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, [dateRange]);
 
     if (loading) {
@@ -58,13 +73,6 @@ export default function SkillGapDashboard(_props: SkillGapDashboardProps) {
         { name: 'Moderate (50-70%)', value: skillData.filter(s => s.avg_score >= 50 && s.avg_score < 70).length, color: '#f59e0b' },
         { name: 'Gap (<50%)', value: gaps.length, color: '#ef4444' },
     ];
-
-    const heatmapData = skillData.map(s => ({
-        name: s.skill,
-        score: s.avg_score,
-        candidates: s.candidate_count,
-        assessments: s.assessment_count,
-    }));
 
     return (
         <div className="space-y-6">
@@ -111,18 +119,32 @@ export default function SkillGapDashboard(_props: SkillGapDashboardProps) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Skill Performance Bar Chart */}
                 <div className="lg:col-span-2 rounded-xl p-5" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border)', boxShadow: 'var(--card-shadow)' }}>
-                    <h3 className="text-sm font-semibold uppercase mb-4" style={{ color: 'var(--text-muted)' }}>Average Score by Skill</h3>
-                    <div style={{ width: '100%', height: 300 }}>
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-sm font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Average Score by Skill</h3>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={showIndustryCompare}
+                                onChange={(e) => setShowIndustryCompare(e.target.checked)}
+                                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Show Industry Average</span>
+                        </label>
+                    </div>
+                    <div style={{ width: '100%', height: 350 }}>
                         <ResponsiveContainer>
-                            <BarChart data={heatmapData} layout="vertical">
+                            <BarChart data={skillData} layout="vertical" margin={{ left: 20, right: 30 }}>
                                 <XAxis type="number" domain={[0, 100]} tick={{ fill: 'var(--text-muted)', fontSize: 10 }} />
-                                <YAxis type="category" dataKey="name" width={100} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
+                                <YAxis type="category" dataKey="skill" width={100} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
                                 <Tooltip contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }} />
-                                <Bar dataKey="score" radius={[0, 4, 4, 0]}>
-                                    {heatmapData.map((entry, i) => (
-                                        <Cell key={i} fill={entry.score >= 70 ? '#10b981' : entry.score >= 50 ? '#f59e0b' : '#ef4444'} />
+                                <Bar dataKey="avg_score" radius={[0, 4, 4, 0]} name="Our Avg">
+                                    {skillData.map((entry, i) => (
+                                        <Cell key={i} fill={entry.avg_score >= 70 ? '#10b981' : entry.avg_score >= 50 ? '#f59e0b' : '#ef4444'} />
                                     ))}
                                 </Bar>
+                                {showIndustryCompare && (
+                                    <Bar dataKey="industry_avg" fill="#94a3b8" radius={[0, 4, 4, 0]} name="Industry Avg" />
+                                )}
                             </BarChart>
                         </ResponsiveContainer>
                     </div>

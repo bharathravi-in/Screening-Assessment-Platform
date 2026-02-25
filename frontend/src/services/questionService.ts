@@ -45,14 +45,36 @@ export const questionService = {
   },
 
   async updateQuestionOptions(id: string, options: Partial<QuestionOption>[]): Promise<void> {
-    await api.put(`/questions/${id}/options`, options);
+    await api.post(`/questions/${id}/options`, options);
   },
 
   async updateQuestionTestCases(id: string, testCases: Partial<QuestionTestCase>[]): Promise<void> {
-    await api.put(`/questions/${id}/test-cases`, testCases);
+    await api.post(`/questions/${id}/test-cases`, testCases);
   },
 
   async updateQuestionCodeStubs(id: string, codeStubs: Partial<QuestionCodeStub>[]): Promise<void> {
-    await api.put(`/questions/${id}/code-stubs`, codeStubs);
+    await api.post(`/questions/${id}/code-stubs`, codeStubs);
+  },
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async bulkUploadQuestions(file: File): Promise<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/questions/bulk-upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  async exportQuestions(): Promise<void> {
+    const response = await api.get('/questions/export', { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'questions_export.csv');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
   },
 };

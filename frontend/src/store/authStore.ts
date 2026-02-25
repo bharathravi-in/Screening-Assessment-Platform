@@ -73,7 +73,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: () => {
     const token = get().token;
     if (token) {
-      api.post('/auth/logout').catch(() => {});
+      api.post('/auth/logout').catch(() => { });
     }
     clearSession();
     set({
@@ -132,18 +132,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             isAuthenticated: true,
           });
         })
-        .catch(() => {
-          // Refresh token expired — log out cleanly
-          clearSession();
-          set({
-            token: null,
-            refreshToken: null,
-            userId: null,
-            fullName: null,
-            role: null,
-            organizationId: null,
-            isAuthenticated: false,
-          });
+        .catch((err) => {
+          // Only log out if it's a 401/403 or specific auth error
+          // Don't log out on network 5xx or connection patterns
+          if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+            clearSession();
+            set({
+              token: null,
+              refreshToken: null,
+              userId: null,
+              fullName: null,
+              role: null,
+              organizationId: null,
+              isAuthenticated: false,
+            });
+          }
         });
     }
   },

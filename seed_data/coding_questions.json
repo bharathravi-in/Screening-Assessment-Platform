@@ -1,0 +1,368 @@
+[
+    {
+        "type": "coding",
+        "difficulty": "beginner",
+        "title": "Two Sum",
+        "body": "## Problem Statement\n\nGiven an array of integers `nums` and an integer `target`, return the **indices** of the two numbers such that they add up to `target`.\n\nYou may assume that each input would have **exactly one solution**, and you may not use the same element twice.\n\nReturn the answer as a list of two indices sorted in ascending order.\n\n### Examples\n\n**Example 1:**\n```\nInput: nums = [2, 7, 11, 15], target = 9\nOutput: [0, 1]\nExplanation: nums[0] + nums[1] = 2 + 7 = 9\n```\n\n**Example 2:**\n```\nInput: nums = [3, 2, 4], target = 6\nOutput: [1, 2]\nExplanation: nums[1] + nums[2] = 2 + 4 = 6\n```\n\n### Constraints\n- 2 ≤ nums.length ≤ 10^4\n- -10^9 ≤ nums[i] ≤ 10^9\n- Only one valid answer exists.",
+        "explanation": "Use a hash map to store each number's index. For each element, check if (target - current) exists in the map. This gives O(n) time complexity.",
+        "time_limit_seconds": 300,
+        "max_score": 20,
+        "test_cases": [
+            {
+                "input": "4\n2 7 11 15\n9",
+                "expected_output": "0 1",
+                "is_hidden": false,
+                "is_sample": true,
+                "order_index": 0,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "3\n3 2 4\n6",
+                "expected_output": "1 2",
+                "is_hidden": false,
+                "is_sample": true,
+                "order_index": 1,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "2\n3 3\n6",
+                "expected_output": "0 1",
+                "is_hidden": true,
+                "is_sample": false,
+                "order_index": 2,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "5\n1 5 3 7 2\n9",
+                "expected_output": "1 3",
+                "is_hidden": true,
+                "is_sample": false,
+                "order_index": 3,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            }
+        ],
+        "code_stubs": [
+            {
+                "language": "python",
+                "stub_code": "import sys\n\ndef two_sum(nums, target):\n    # Write your solution here\n    pass\n\n# Read input\nn = int(input())\nnums = list(map(int, input().split()))\ntarget = int(input())\n\nresult = two_sum(nums, target)\nprint(result[0], result[1])",
+                "solution_code": "import sys\n\ndef two_sum(nums, target):\n    seen = {}\n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in seen:\n            return [seen[complement], i]\n        seen[num] = i\n    return []\n\nn = int(input())\nnums = list(map(int, input().split()))\ntarget = int(input())\n\nresult = two_sum(nums, target)\nprint(result[0], result[1])"
+            },
+            {
+                "language": "javascript",
+                "stub_code": "const readline = require('readline');\nconst rl = readline.createInterface({ input: process.stdin });\nconst lines = [];\nrl.on('line', (line) => lines.push(line.trim()));\nrl.on('close', () => {\n  const n = parseInt(lines[0]);\n  const nums = lines[1].split(' ').map(Number);\n  const target = parseInt(lines[2]);\n  const result = twoSum(nums, target);\n  console.log(result[0] + ' ' + result[1]);\n});\n\nfunction twoSum(nums, target) {\n  // Write your solution here\n  return [];\n}",
+                "solution_code": "const readline = require('readline');\nconst rl = readline.createInterface({ input: process.stdin });\nconst lines = [];\nrl.on('line', (line) => lines.push(line.trim()));\nrl.on('close', () => {\n  const n = parseInt(lines[0]);\n  const nums = lines[1].split(' ').map(Number);\n  const target = parseInt(lines[2]);\n  const result = twoSum(nums, target);\n  console.log(result[0] + ' ' + result[1]);\n});\n\nfunction twoSum(nums, target) {\n  const seen = new Map();\n  for (let i = 0; i < nums.length; i++) {\n    const complement = target - nums[i];\n    if (seen.has(complement)) {\n      return [seen.get(complement), i];\n    }\n    seen.set(nums[i], i);\n  }\n  return [];\n}"
+            },
+            {
+                "language": "java",
+                "stub_code": "import java.util.*;\n\npublic class Main {\n    public static int[] twoSum(int[] nums, int target) {\n        // Write your solution here\n        return new int[]{};\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        int[] nums = new int[n];\n        for (int i = 0; i < n; i++) nums[i] = sc.nextInt();\n        int target = sc.nextInt();\n        int[] result = twoSum(nums, target);\n        System.out.println(result[0] + \" \" + result[1]);\n    }\n}",
+                "solution_code": "import java.util.*;\n\npublic class Main {\n    public static int[] twoSum(int[] nums, int target) {\n        Map<Integer, Integer> seen = new HashMap<>();\n        for (int i = 0; i < nums.length; i++) {\n            int complement = target - nums[i];\n            if (seen.containsKey(complement)) {\n                return new int[]{seen.get(complement), i};\n            }\n            seen.put(nums[i], i);\n        }\n        return new int[]{};\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        int[] nums = new int[n];\n        for (int i = 0; i < n; i++) nums[i] = sc.nextInt();\n        int target = sc.nextInt();\n        int[] result = twoSum(nums, target);\n        System.out.println(result[0] + \" \" + result[1]);\n    }\n}"
+            }
+        ],
+        "skill_names": [
+            "Data Structures & Algorithms",
+            "Hash Tables"
+        ]
+    },
+    {
+        "type": "coding",
+        "difficulty": "intermediate",
+        "title": "Valid Parentheses Checker",
+        "body": "## Problem Statement\n\nGiven a string `s` containing only the characters `(`, `)`, `{`, `}`, `[` and `]`, determine if the input string is **valid**.\n\nA string is valid if:\n1. Open brackets are closed by the same type of brackets.\n2. Open brackets are closed in the correct order.\n3. Every close bracket has a corresponding open bracket of the same type.\n\nPrint `true` if the string is valid, `false` otherwise.\n\n### Examples\n\n**Example 1:**\n```\nInput: ()\nOutput: true\n```\n\n**Example 2:**\n```\nInput: ()[]{}\nOutput: true\n```\n\n**Example 3:**\n```\nInput: (]\nOutput: false\n```\n\n### Constraints\n- 1 ≤ s.length ≤ 10^4\n- s consists of parentheses only `()[]{}` ",
+        "explanation": "Use a stack. Push opening brackets onto the stack and pop when encountering a closing bracket. Check if the popped bracket matches the current closing bracket.",
+        "time_limit_seconds": 180,
+        "max_score": 15,
+        "test_cases": [
+            {
+                "input": "()",
+                "expected_output": "true",
+                "is_hidden": false,
+                "is_sample": true,
+                "order_index": 0,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "()[]{}",
+                "expected_output": "true",
+                "is_hidden": false,
+                "is_sample": true,
+                "order_index": 1,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "(]",
+                "expected_output": "false",
+                "is_hidden": false,
+                "is_sample": true,
+                "order_index": 2,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "([)]",
+                "expected_output": "false",
+                "is_hidden": true,
+                "is_sample": false,
+                "order_index": 3,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "{[()]}",
+                "expected_output": "true",
+                "is_hidden": true,
+                "is_sample": false,
+                "order_index": 4,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "",
+                "expected_output": "true",
+                "is_hidden": true,
+                "is_sample": false,
+                "order_index": 5,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            }
+        ],
+        "code_stubs": [
+            {
+                "language": "python",
+                "stub_code": "def is_valid(s):\n    # Write your solution here\n    pass\n\ns = input().strip()\nprint(str(is_valid(s)).lower())",
+                "solution_code": "def is_valid(s):\n    stack = []\n    mapping = {')': '(', '}': '{', ']': '['}\n    for char in s:\n        if char in mapping:\n            top = stack.pop() if stack else '#'\n            if mapping[char] != top:\n                return False\n        else:\n            stack.append(char)\n    return len(stack) == 0\n\ns = input().strip()\nprint(str(is_valid(s)).lower())"
+            },
+            {
+                "language": "javascript",
+                "stub_code": "const readline = require('readline');\nconst rl = readline.createInterface({ input: process.stdin });\nrl.on('line', (line) => {\n  console.log(isValid(line.trim()));\n  rl.close();\n});\n\nfunction isValid(s) {\n  // Write your solution here\n  return false;\n}",
+                "solution_code": "const readline = require('readline');\nconst rl = readline.createInterface({ input: process.stdin });\nrl.on('line', (line) => {\n  console.log(isValid(line.trim()));\n  rl.close();\n});\n\nfunction isValid(s) {\n  const stack = [];\n  const mapping = { ')': '(', '}': '{', ']': '[' };\n  for (const char of s) {\n    if (char in mapping) {\n      const top = stack.length > 0 ? stack.pop() : '#';\n      if (mapping[char] !== top) return false;\n    } else {\n      stack.push(char);\n    }\n  }\n  return stack.length === 0;\n}"
+            }
+        ],
+        "skill_names": [
+            "Data Structures & Algorithms"
+        ]
+    },
+    {
+        "type": "coding",
+        "difficulty": "intermediate",
+        "title": "FizzBuzz Extended",
+        "body": "## Problem Statement\n\nWrite a program that prints numbers from 1 to `n`. But for multiples of 3 print `Fizz` instead of the number, for multiples of 5 print `Buzz`, and for multiples of both 3 and 5 print `FizzBuzz`.\n\nPrint each result on a new line.\n\n### Examples\n\n**Example 1:**\n```\nInput: 5\nOutput:\n1\n2\nFizz\n4\nBuzz\n```\n\n**Example 2:**\n```\nInput: 15\nOutput:\n1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n```\n\n### Constraints\n- 1 ≤ n ≤ 10^5",
+        "explanation": "Check divisibility by 15 first (for FizzBuzz), then 3 (for Fizz), then 5 (for Buzz). The key insight is that checking 15 first avoids needing a separate combined check.",
+        "time_limit_seconds": 120,
+        "max_score": 10,
+        "test_cases": [
+            {
+                "input": "5",
+                "expected_output": "1\n2\nFizz\n4\nBuzz",
+                "is_hidden": false,
+                "is_sample": true,
+                "order_index": 0,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "15",
+                "expected_output": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz",
+                "is_hidden": false,
+                "is_sample": true,
+                "order_index": 1,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "1",
+                "expected_output": "1",
+                "is_hidden": true,
+                "is_sample": false,
+                "order_index": 2,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "30",
+                "expected_output": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n16\n17\nFizz\n19\nBuzz\nFizz\n22\n23\nFizz\nBuzz\n26\nFizz\n28\n29\nFizzBuzz",
+                "is_hidden": true,
+                "is_sample": false,
+                "order_index": 3,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            }
+        ],
+        "code_stubs": [
+            {
+                "language": "python",
+                "stub_code": "def fizzbuzz(n):\n    # Write your solution here\n    pass\n\nn = int(input())\nfizzbuzz(n)",
+                "solution_code": "def fizzbuzz(n):\n    for i in range(1, n + 1):\n        if i % 15 == 0:\n            print('FizzBuzz')\n        elif i % 3 == 0:\n            print('Fizz')\n        elif i % 5 == 0:\n            print('Buzz')\n        else:\n            print(i)\n\nn = int(input())\nfizzbuzz(n)"
+            },
+            {
+                "language": "javascript",
+                "stub_code": "const readline = require('readline');\nconst rl = readline.createInterface({ input: process.stdin });\nrl.on('line', (line) => {\n  fizzBuzz(parseInt(line.trim()));\n  rl.close();\n});\n\nfunction fizzBuzz(n) {\n  // Write your solution here\n}",
+                "solution_code": "const readline = require('readline');\nconst rl = readline.createInterface({ input: process.stdin });\nrl.on('line', (line) => {\n  fizzBuzz(parseInt(line.trim()));\n  rl.close();\n});\n\nfunction fizzBuzz(n) {\n  for (let i = 1; i <= n; i++) {\n    if (i % 15 === 0) console.log('FizzBuzz');\n    else if (i % 3 === 0) console.log('Fizz');\n    else if (i % 5 === 0) console.log('Buzz');\n    else console.log(i);\n  }\n}"
+            },
+            {
+                "language": "java",
+                "stub_code": "import java.util.Scanner;\n\npublic class Main {\n    public static void fizzBuzz(int n) {\n        // Write your solution here\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        fizzBuzz(n);\n    }\n}",
+                "solution_code": "import java.util.Scanner;\n\npublic class Main {\n    public static void fizzBuzz(int n) {\n        for (int i = 1; i <= n; i++) {\n            if (i % 15 == 0) System.out.println(\"FizzBuzz\");\n            else if (i % 3 == 0) System.out.println(\"Fizz\");\n            else if (i % 5 == 0) System.out.println(\"Buzz\");\n            else System.out.println(i);\n        }\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        fizzBuzz(n);\n    }\n}"
+            }
+        ],
+        "skill_names": [
+            "Core Python",
+            "ES6+ Features",
+            "Core Java"
+        ]
+    },
+    {
+        "type": "debugging",
+        "difficulty": "intermediate",
+        "title": "Fix the Palindrome Checker",
+        "body": "## Problem Statement\n\nThe following code is supposed to check if a given string is a **palindrome** (reads the same forward and backward), ignoring case and non-alphanumeric characters.\n\nHowever, the code has **bugs**. Find and fix them.\n\nThe program should read a string from stdin and print `true` if it's a palindrome, `false` otherwise.\n\n### Examples\n\n**Example 1:**\n```\nInput: A man, a plan, a canal: Panama\nOutput: true\n```\n\n**Example 2:**\n```\nInput: race a car\nOutput: false\n```\n\n**Example 3:**\n```\nInput: Was it a car or a cat I saw?\nOutput: true\n```\n\n### Constraints\n- 1 ≤ s.length ≤ 2 × 10^5\n- s consists of printable ASCII characters",
+        "explanation": "The buggy code has issues: (1) it doesn't filter non-alphanumeric characters, (2) the comparison doesn't ignore case, and (3) the loop boundary may be off by one. The fix involves cleaning the string first and comparing correctly.",
+        "time_limit_seconds": 180,
+        "max_score": 15,
+        "test_cases": [
+            {
+                "input": "A man, a plan, a canal: Panama",
+                "expected_output": "true",
+                "is_hidden": false,
+                "is_sample": true,
+                "order_index": 0,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "race a car",
+                "expected_output": "false",
+                "is_hidden": false,
+                "is_sample": true,
+                "order_index": 1,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "Was it a car or a cat I saw?",
+                "expected_output": "true",
+                "is_hidden": false,
+                "is_sample": true,
+                "order_index": 2,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": " ",
+                "expected_output": "true",
+                "is_hidden": true,
+                "is_sample": false,
+                "order_index": 3,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "0P",
+                "expected_output": "false",
+                "is_hidden": true,
+                "is_sample": false,
+                "order_index": 4,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            }
+        ],
+        "code_stubs": [
+            {
+                "language": "python",
+                "stub_code": "def is_palindrome(s):\n    # BUG: This code doesn't work correctly. Fix it!\n    left = 0\n    right = len(s)\n    while left < right:\n        if s[left] != s[right]:\n            return False\n        left += 1\n        right -= 1\n    return True\n\ns = input()\nprint(str(is_palindrome(s)).lower())",
+                "solution_code": "def is_palindrome(s):\n    cleaned = ''.join(c.lower() for c in s if c.isalnum())\n    left = 0\n    right = len(cleaned) - 1\n    while left < right:\n        if cleaned[left] != cleaned[right]:\n            return False\n        left += 1\n        right -= 1\n    return True\n\ns = input()\nprint(str(is_palindrome(s)).lower())"
+            },
+            {
+                "language": "javascript",
+                "stub_code": "const readline = require('readline');\nconst rl = readline.createInterface({ input: process.stdin });\nrl.on('line', (line) => {\n  console.log(isPalindrome(line));\n  rl.close();\n});\n\nfunction isPalindrome(s) {\n  // BUG: This code doesn't work correctly. Fix it!\n  let left = 0;\n  let right = s.length;\n  while (left < right) {\n    if (s[left] !== s[right]) return false;\n    left++;\n    right--;\n  }\n  return true;\n}",
+                "solution_code": "const readline = require('readline');\nconst rl = readline.createInterface({ input: process.stdin });\nrl.on('line', (line) => {\n  console.log(isPalindrome(line));\n  rl.close();\n});\n\nfunction isPalindrome(s) {\n  const cleaned = s.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();\n  let left = 0;\n  let right = cleaned.length - 1;\n  while (left < right) {\n    if (cleaned[left] !== cleaned[right]) return false;\n    left++;\n    right--;\n  }\n  return true;\n}"
+            }
+        ],
+        "skill_names": [
+            "Core Python",
+            "ES6+ Features"
+        ]
+    },
+    {
+        "type": "coding",
+        "difficulty": "advanced",
+        "title": "Merge Sorted Arrays",
+        "body": "## Problem Statement\n\nYou are given two sorted integer arrays `nums1` and `nums2`. Merge them into a single **sorted** array and print the result.\n\nThe output should be a single line of space-separated integers representing the merged sorted array.\n\n### Examples\n\n**Example 1:**\n```\nInput:\n3\n1 3 5\n3\n2 4 6\nOutput: 1 2 3 4 5 6\n```\n\n**Example 2:**\n```\nInput:\n4\n1 2 3 4\n0\n\nOutput: 1 2 3 4\n```\n\n**Example 3:**\n```\nInput:\n0\n\n4\n-4 -1 0 3\nOutput: -4 -1 0 3\n```\n\n### Constraints\n- 0 ≤ nums1.length, nums2.length ≤ 10^5\n- -10^9 ≤ nums1[i], nums2[i] ≤ 10^9\n- Both arrays are sorted in non-decreasing order.\n\n**Expected Time Complexity:** O(n + m) where n and m are the lengths of the two arrays.\n**Expected Space Complexity:** O(n + m)",
+        "explanation": "Use the two-pointer merge technique: maintain pointers i, j for both arrays. Compare elements at both pointers, append the smaller one to the result, and advance that pointer. Handle remaining elements from whichever array isn't exhausted.",
+        "time_limit_seconds": 300,
+        "max_score": 25,
+        "test_cases": [
+            {
+                "input": "3\n1 3 5\n3\n2 4 6",
+                "expected_output": "1 2 3 4 5 6",
+                "is_hidden": false,
+                "is_sample": true,
+                "order_index": 0,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "4\n1 2 3 4\n0\n",
+                "expected_output": "1 2 3 4",
+                "is_hidden": false,
+                "is_sample": true,
+                "order_index": 1,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "0\n\n4\n-4 -1 0 3",
+                "expected_output": "-4 -1 0 3",
+                "is_hidden": false,
+                "is_sample": true,
+                "order_index": 2,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "3\n1 1 1\n3\n1 1 1",
+                "expected_output": "1 1 1 1 1 1",
+                "is_hidden": true,
+                "is_sample": false,
+                "order_index": 3,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            },
+            {
+                "input": "5\n-10 -5 0 5 10\n5\n-8 -3 1 7 12",
+                "expected_output": "-10 -8 -5 -3 0 1 5 7 10 12",
+                "is_hidden": true,
+                "is_sample": false,
+                "order_index": 4,
+                "time_limit_ms": 5000,
+                "memory_limit_mb": 256
+            }
+        ],
+        "code_stubs": [
+            {
+                "language": "python",
+                "stub_code": "def merge_sorted(nums1, nums2):\n    # Write your solution here\n    # Use O(n+m) merge technique\n    pass\n\nn1 = int(input())\nnums1 = list(map(int, input().split())) if n1 > 0 else []\nn2 = int(input())\nnums2 = list(map(int, input().split())) if n2 > 0 else []\n\nresult = merge_sorted(nums1, nums2)\nprint(' '.join(map(str, result)))",
+                "solution_code": "def merge_sorted(nums1, nums2):\n    result = []\n    i, j = 0, 0\n    while i < len(nums1) and j < len(nums2):\n        if nums1[i] <= nums2[j]:\n            result.append(nums1[i])\n            i += 1\n        else:\n            result.append(nums2[j])\n            j += 1\n    result.extend(nums1[i:])\n    result.extend(nums2[j:])\n    return result\n\nn1 = int(input())\nnums1 = list(map(int, input().split())) if n1 > 0 else []\nn2 = int(input())\nnums2 = list(map(int, input().split())) if n2 > 0 else []\n\nresult = merge_sorted(nums1, nums2)\nprint(' '.join(map(str, result)))"
+            },
+            {
+                "language": "javascript",
+                "stub_code": "const readline = require('readline');\nconst rl = readline.createInterface({ input: process.stdin });\nconst lines = [];\nrl.on('line', (line) => lines.push(line.trim()));\nrl.on('close', () => {\n  const n1 = parseInt(lines[0]);\n  const nums1 = n1 > 0 ? lines[1].split(' ').map(Number) : [];\n  const n2 = parseInt(lines[n1 > 0 ? 2 : 1]);\n  const nums2 = n2 > 0 ? lines[n1 > 0 ? 3 : 2].split(' ').map(Number) : [];\n  console.log(mergeSorted(nums1, nums2).join(' '));\n});\n\nfunction mergeSorted(nums1, nums2) {\n  // Write your solution here\n  return [];\n}",
+                "solution_code": "const readline = require('readline');\nconst rl = readline.createInterface({ input: process.stdin });\nconst lines = [];\nrl.on('line', (line) => lines.push(line.trim()));\nrl.on('close', () => {\n  const n1 = parseInt(lines[0]);\n  const nums1 = n1 > 0 ? lines[1].split(' ').map(Number) : [];\n  const n2 = parseInt(lines[n1 > 0 ? 2 : 1]);\n  const nums2 = n2 > 0 ? lines[n1 > 0 ? 3 : 2].split(' ').map(Number) : [];\n  console.log(mergeSorted(nums1, nums2).join(' '));\n});\n\nfunction mergeSorted(nums1, nums2) {\n  const result = [];\n  let i = 0, j = 0;\n  while (i < nums1.length && j < nums2.length) {\n    if (nums1[i] <= nums2[j]) result.push(nums1[i++]);\n    else result.push(nums2[j++]);\n  }\n  while (i < nums1.length) result.push(nums1[i++]);\n  while (j < nums2.length) result.push(nums2[j++]);\n  return result;\n}"
+            },
+            {
+                "language": "java",
+                "stub_code": "import java.util.*;\n\npublic class Main {\n    public static int[] mergeSorted(int[] nums1, int[] nums2) {\n        // Write your solution here\n        return new int[]{};\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n1 = sc.nextInt();\n        int[] nums1 = new int[n1];\n        for (int i = 0; i < n1; i++) nums1[i] = sc.nextInt();\n        int n2 = sc.nextInt();\n        int[] nums2 = new int[n2];\n        for (int i = 0; i < n2; i++) nums2[i] = sc.nextInt();\n        int[] result = mergeSorted(nums1, nums2);\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i < result.length; i++) {\n            if (i > 0) sb.append(' ');\n            sb.append(result[i]);\n        }\n        System.out.println(sb.toString());\n    }\n}",
+                "solution_code": "import java.util.*;\n\npublic class Main {\n    public static int[] mergeSorted(int[] nums1, int[] nums2) {\n        int[] result = new int[nums1.length + nums2.length];\n        int i = 0, j = 0, k = 0;\n        while (i < nums1.length && j < nums2.length) {\n            if (nums1[i] <= nums2[j]) result[k++] = nums1[i++];\n            else result[k++] = nums2[j++];\n        }\n        while (i < nums1.length) result[k++] = nums1[i++];\n        while (j < nums2.length) result[k++] = nums2[j++];\n        return result;\n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n1 = sc.nextInt();\n        int[] nums1 = new int[n1];\n        for (int i = 0; i < n1; i++) nums1[i] = sc.nextInt();\n        int n2 = sc.nextInt();\n        int[] nums2 = new int[n2];\n        for (int i = 0; i < n2; i++) nums2[i] = sc.nextInt();\n        int[] result = mergeSorted(nums1, nums2);\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i < result.length; i++) {\n            if (i > 0) sb.append(' ');\n            sb.append(result[i]);\n        }\n        System.out.println(sb.toString());\n    }\n}"
+            }
+        ],
+        "skill_names": [
+            "Data Structures & Algorithms",
+            "Big O Analysis"
+        ]
+    }
+]
