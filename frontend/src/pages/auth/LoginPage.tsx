@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import ThemeToggle from '../../components/common/ThemeToggle';
@@ -12,6 +12,18 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const login = useAuthStore((s) => s.login);
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const role = useAuthStore((s) => s.role);
+
+  // Auto-redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated && role) {
+      if (role === 'super_admin' || role === 'admin') navigate('/admin');
+      else if (role === 'hr') navigate('/hr');
+      else if (role === 'tech') navigate('/tech');
+      else navigate('/');
+    }
+  }, [isAuthenticated, role, navigate]);
 
   // Load org branding from ?org= query param
   useBranding();
@@ -32,7 +44,14 @@ export default function LoginPage() {
       else if (role === 'tech') navigate('/tech');
       else navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Login failed');
+      const detail = err.response?.data?.detail;
+      if (typeof detail === 'string') {
+        setError(detail);
+      } else if (Array.isArray(detail)) {
+        setError(detail.map((d: any) => d.msg || JSON.stringify(d)).join(', '));
+      } else {
+        setError('Login failed');
+      }
     } finally {
       setLoading(false);
     }

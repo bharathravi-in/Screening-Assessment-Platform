@@ -15,9 +15,10 @@ interface QuestionRendererProps {
 }
 
 const difficultyColors: Record<string, string> = {
-  easy: '#10b981',
-  medium: '#f59e0b',
-  hard: '#ef4444',
+  beginner: '#10b981',
+  intermediate: '#3b82f6',
+  advanced: '#f59e0b',
+  expert: '#ef4444',
 };
 
 export default function QuestionRenderer({

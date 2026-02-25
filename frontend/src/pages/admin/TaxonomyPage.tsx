@@ -15,6 +15,7 @@ import {
   Sparkles,
   Upload,
   FileText,
+  Download,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -304,6 +305,38 @@ export default function TaxonomyPage() {
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={async () => {
+              try {
+                await taxonomyService.exportTaxonomy();
+                toast.success('Taxonomy exported!');
+              } catch {
+                toast.error('Export failed');
+              }
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+          >
+            <Download size={16} />
+            Export CSV
+          </button>
+          <button
+            onClick={() => {
+              const tpl = 'technology,category,skill,description\n';
+              const blob = new Blob([tpl], { type: 'text/csv' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'taxonomy_template.csv';
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+          >
+            <FileText size={16} />
+            Template
+          </button>
+          <button
             onClick={() => setShowAIGenerate(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition-all hover:shadow-lg"
             style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}
@@ -317,7 +350,7 @@ export default function TaxonomyPage() {
             style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
           >
             <Upload size={16} />
-            Bulk Upload
+            Import CSV
           </button>
           <button
             onClick={() => setShowAddTech(true)}

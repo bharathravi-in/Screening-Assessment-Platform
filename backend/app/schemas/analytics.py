@@ -59,3 +59,22 @@ class AnalyticsOverview(BaseModel):
     difficulty_performance: list[DifficultyPerformance]
     type_performance: list[TypePerformance]
     daily_sessions: list[DailyCount]
+
+
+class CohortStat(BaseModel):
+    name: str
+    count: int
+    avg_score: float | None
+    pass_rate: float | None
+
+
+class BenchmarkData(BaseModel):
+    category: str
+    org_score: float | None
+    industry_avg: float | None
+
+
+class BenchmarkingResponse(BaseModel):
+    by_skill: list[BenchmarkData]
+    by_type: list[BenchmarkData]
+    percentile: float | None

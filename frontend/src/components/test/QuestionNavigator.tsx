@@ -63,13 +63,14 @@ export default function QuestionNavigator({
   };
 
   return (
-    <div>
-      <div className="grid grid-cols-5 gap-2">
+    <div className="flex flex-col h-full">
+      <div className="flex lg:grid lg:grid-cols-5 gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 scrollbar-hide">
         {questions.map((q, i) => (
           <button
             key={q.id}
+            id={`q-nav-${i}`}
             onClick={() => onNavigate(i)}
-            className="w-9 h-9 rounded-lg text-xs font-semibold border transition-colors"
+            className="w-8 h-8 lg:w-9 lg:h-9 rounded-lg text-xs font-semibold border transition-colors shrink-0"
             style={getButtonStyle(i, q.id)}
           >
             {i + 1}
@@ -77,7 +78,7 @@ export default function QuestionNavigator({
         ))}
       </div>
 
-      <div className="mt-4 flex flex-col gap-1.5">
+      <div className="mt-4 hidden lg:flex flex-col gap-1.5">
         <LegendItem color="var(--accent)" label="Current" />
         <LegendItem color="#10b981" label="Answered" />
         <LegendItem color="#f59e0b" label="Flagged" />

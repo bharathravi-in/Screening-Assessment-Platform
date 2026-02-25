@@ -163,3 +163,45 @@ async def get_candidate_session(
         )
 
     return session
+
+
+async def get_candidate_session_any_status(
+    credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
+    db: AsyncSession = Depends(get_db),
+) -> CandidateSession:
+    """Extract candidate session from JWT — allows any status (for results/completion pages)."""
+    token = credentials.credentials
+
+    try:
+        payload = decode_token(token)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
+
+    if payload.get("type") != "candidate":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token type — candidate token required",
+        )
+
+    session_id = payload.get("sub")
+    if not session_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token payload",
+        )
+
+    result = await db.execute(
+        select(CandidateSession).where(CandidateSession.id == UUID(session_id))
+    )
+    session = result.scalar_one_or_none()
+
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session not found",
+        )
+
+    return session

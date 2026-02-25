@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     upload_dir: str = "./uploads"
     max_upload_size_mb: int = 10
 
+    # Email
+    email_type: str = "none"  # "local" (Gmail via env), "smtp" (DB config), "none" (disabled)
+    gmail_email: str = ""
+    gmail_app_password: str = ""
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 

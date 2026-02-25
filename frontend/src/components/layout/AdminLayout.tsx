@@ -7,6 +7,7 @@ import {
   BookOpen,
   Settings,
   LogOut,
+  Trophy,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import ThemeToggle from '../common/ThemeToggle';
@@ -17,6 +18,7 @@ const superAdminNav = [
   { path: '/admin/organizations', icon: Building2, label: 'Organizations' },
   { path: '/admin/taxonomy', icon: Tags, label: 'Taxonomy' },
   { path: '/admin/questions', icon: BookOpen, label: 'Question Bank' },
+  { path: '/admin/benchmarking', icon: Trophy, label: 'Benchmarking' },
   { path: '/admin/settings', icon: Settings, label: 'System Settings' },
 ];
 
@@ -25,6 +27,7 @@ const adminNav = [
   { path: '/admin/users', icon: Users, label: 'Users' },
   { path: '/admin/org-settings', icon: Settings, label: 'Org Settings' },
   { path: '/admin/questions', icon: BookOpen, label: 'Question Bank' },
+  { path: '/admin/benchmarking', icon: Trophy, label: 'Benchmarking' },
 ];
 
 export default function AdminLayout() {
@@ -60,10 +63,9 @@ export default function AdminLayout() {
               to={item.path}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                  isActive
-                    ? 'text-white font-medium'
-                    : 'hover:bg-white/5'
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive
+                  ? 'text-white font-medium'
+                  : 'hover:bg-white/5'
                 }`
               }
               style={({ isActive }) => ({

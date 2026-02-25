@@ -18,6 +18,7 @@ from app.models.candidate import CandidateInvitation, CandidateSession  # noqa: 
 from app.models.response import CandidateResponse  # noqa: F401
 from app.models.resume import Resume  # noqa: F401
 from app.models.system_settings import SystemSettings  # noqa: F401
+from app.models.proctoring_event import ProctoringEvent, ProctoringSnapshot, IdentityVerification, PlagiarismReport  # noqa: F401
 
 config = context.config
 

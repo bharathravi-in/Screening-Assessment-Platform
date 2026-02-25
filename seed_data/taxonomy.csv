@@ -1,0 +1,183 @@
+technology,category,skill,description
+Python,language,Core Python,Fundamental Python concepts including variables data types and control flow
+Python,language,OOP in Python,Object-oriented programming with classes inheritance and polymorphism
+Python,language,Decorators & Generators,Advanced Python features for metaprogramming and lazy evaluation
+Python,language,List Comprehensions,Pythonic way to create and transform lists
+Python,language,Error Handling,Exception handling with try/except/finally patterns
+Python,language,File I/O,Reading and writing files including CSV JSON and binary formats
+Python,language,Async/Await,Asynchronous programming with asyncio
+Python,language,Type Hints,Static type annotations for better code quality
+Python,language,Unit Testing,Testing with pytest and unittest frameworks
+Python,language,Data Structures,Built-in data structures: lists dicts sets tuples
+Python,language,Algorithms,Common algorithmic patterns in Python
+JavaScript,language,ES6+ Features,Modern JavaScript features including arrow functions template literals and destructuring
+JavaScript,language,Closures & Scope,Understanding lexical scope closures and the scope chain
+JavaScript,language,Promises & Async/Await,Asynchronous programming patterns
+JavaScript,language,DOM Manipulation,Interacting with the Document Object Model
+JavaScript,language,Event Loop,Understanding the JavaScript event loop and task queues
+JavaScript,language,Prototypes & Classes,Prototype chain and ES6 class syntax
+JavaScript,language,Error Handling,Error handling with try/catch and custom errors
+JavaScript,language,Modules,ES modules and CommonJS module systems
+JavaScript,language,Array Methods,map filter reduce find and other array methods
+JavaScript,language,Destructuring & Spread,Object and array destructuring with spread/rest operators
+TypeScript,language,Type System,TypeScript primitive types union types and type aliases
+TypeScript,language,Interfaces & Types,Defining shapes of objects with interfaces and type aliases
+TypeScript,language,Generics,Creating reusable typed components
+TypeScript,language,Decorators,Metadata annotations for classes and methods
+TypeScript,language,Enums,Enumerated types for named constants
+TypeScript,language,Utility Types,Built-in utility types like Partial Required Pick Omit
+TypeScript,language,Type Guards,Runtime type narrowing with typeof instanceof and custom guards
+TypeScript,language,Module System,Module resolution and declaration files
+Java,language,Core Java,Fundamental Java concepts including syntax and data types
+Java,language,OOP Principles,Encapsulation inheritance polymorphism and abstraction
+Java,language,Collections Framework,Lists Sets Maps and their implementations
+Java,language,Exception Handling,Checked and unchecked exceptions try-catch-finally
+Java,language,Multithreading,Thread creation synchronization and concurrent utilities
+Java,language,Streams API,Functional-style operations on collections
+Java,language,Generics,Type parameterization for classes and methods
+Java,language,JVM Internals,Memory management garbage collection and class loading
+Java,language,Design Patterns,Common design patterns: Singleton Factory Observer Strategy
+Java,language,Unit Testing (JUnit),Testing with JUnit and Mockito
+C#,language,Core C#,Fundamental C# concepts and .NET runtime
+C#,language,LINQ,Language Integrated Query for data manipulation
+C#,language,Async/Await,Asynchronous programming with Task-based patterns
+C#,language,Delegates & Events,Function pointers and event-driven programming
+C#,language,Generics,Generic types and methods for type-safe reusable code
+C#,language,Entity Framework,ORM for database operations
+C#,language,Dependency Injection,IoC containers and DI patterns
+C#,language,Unit Testing (NUnit/xUnit),Testing frameworks for .NET
+Go,language,Goroutines & Channels,Lightweight concurrency primitives
+Go,language,Interfaces,Implicit interface implementation
+Go,language,Error Handling,Error values and error wrapping patterns
+Go,language,Packages & Modules,Go module system and package management
+Go,language,Concurrency Patterns,Fan-in fan-out worker pools and select
+Go,language,Testing,Table-driven tests and benchmarks
+Go,language,Standard Library,Key packages: net/http encoding/json fmt io
+Rust,language,Ownership & Borrowing,Memory safety without garbage collection
+Rust,language,Lifetimes,Lifetime annotations for reference validity
+Rust,language,Enums & Pattern Matching,Algebraic data types and match expressions
+Rust,language,Traits,Shared behavior through trait definitions
+Rust,language,Error Handling (Result/Option),Explicit error handling without exceptions
+Rust,language,Concurrency,Fearless concurrency with ownership rules
+Rust,language,Cargo & Crates,Package management and build system
+React,framework,Components & JSX,Building UI with components and JSX syntax
+React,framework,Hooks (useState useEffect),React hooks for state and side effects
+React,framework,State Management,Managing application state with Context Redux or Zustand
+React,framework,Context API,React Context for prop drilling avoidance
+React,framework,React Router,Client-side routing and navigation
+React,framework,Performance Optimization,Memoization lazy loading and code splitting
+React,framework,Custom Hooks,Creating reusable stateful logic
+React,framework,Error Boundaries,Catching and handling rendering errors
+React,framework,Testing (React Testing Library),Component testing with RTL
+Angular,framework,Components & Templates,Angular component architecture and template syntax
+Angular,framework,Dependency Injection,Angular DI system and providers
+Angular,framework,Services,Singleton services for shared logic
+Angular,framework,RxJS & Observables,Reactive programming with RxJS
+Angular,framework,Routing,Angular router and route guards
+Angular,framework,Forms (Reactive & Template),Form handling approaches
+Angular,framework,Pipes,Data transformation in templates
+Angular,framework,Modules & Lazy Loading,NgModules and lazy-loaded routes
+Angular,framework,Angular CLI,Command-line tooling for Angular projects
+Node.js,framework,Event Loop,Node.js event-driven non-blocking architecture
+Node.js,framework,Streams,Readable writable and transform streams
+Node.js,framework,Express.js,Web framework for building APIs
+Node.js,framework,Middleware,Request processing pipeline
+Node.js,framework,REST API Design,RESTful API design principles
+Node.js,framework,Authentication,JWT OAuth and session-based auth
+Node.js,framework,Error Handling,Centralized error handling patterns
+Node.js,framework,File System,File operations with fs module
+Node.js,framework,NPM & Package Management,Package management and versioning
+Django,framework,Models & ORM,Django model layer and database operations
+Django,framework,Views & URLs,URL routing and view functions/classes
+Django,framework,Templates,Django template engine
+Django,framework,Forms & Validation,Form handling and data validation
+Django,framework,Admin Panel,Django admin customization
+Django,framework,Middleware,Request/response processing hooks
+Django,framework,REST Framework,Django REST Framework for APIs
+Django,framework,Authentication,User authentication and permissions
+Spring Boot,framework,Dependency Injection,Spring IoC container
+Spring Boot,framework,Spring Data JPA,Database access with JPA repositories
+Spring Boot,framework,REST Controllers,Building RESTful APIs
+Spring Boot,framework,Security,Spring Security for auth and authorization
+Spring Boot,framework,Actuator,Application monitoring and management
+Spring Boot,framework,Testing,Integration and unit testing
+Spring Boot,framework,Microservices,Building microservice architectures
+Spring Boot,framework,Configuration,Application configuration and profiles
+SQL,database,SELECT & Joins,Querying data with JOINs
+SQL,database,Subqueries,Nested queries and correlated subqueries
+SQL,database,Aggregations,GROUP BY HAVING COUNT SUM AVG
+SQL,database,Indexing,Index types and optimization strategies
+SQL,database,Normalization,Database normalization forms (1NF 2NF 3NF BCNF)
+SQL,database,Transactions,ACID properties and transaction isolation levels
+SQL,database,Window Functions,ROW_NUMBER RANK LEAD LAG OVER
+SQL,database,Query Optimization,Execution plans and query tuning
+SQL,database,Stored Procedures,Server-side programming with procedures and functions
+SQL,database,Database Design,ER diagrams and schema design
+PostgreSQL,database,JSONB Operations,JSON storage and querying capabilities
+PostgreSQL,database,CTEs,Common Table Expressions for complex queries
+PostgreSQL,database,Partitioning,Table partitioning for large datasets
+PostgreSQL,database,Extensions,PostGIS pg_trgm and other extensions
+PostgreSQL,database,Performance Tuning,EXPLAIN ANALYZE and configuration tuning
+PostgreSQL,database,Replication,Streaming and logical replication
+MongoDB,database,CRUD Operations,Create Read Update Delete operations
+MongoDB,database,Aggregation Pipeline,Data processing and transformation pipeline
+MongoDB,database,Indexing,Index types including compound and text indexes
+MongoDB,database,Schema Design,Document modeling and embedding vs referencing
+MongoDB,database,Replica Sets,High availability with replica sets
+MongoDB,database,Transactions,Multi-document ACID transactions
+Redis,database,Data Types,Strings Lists Sets Hashes Sorted Sets
+Redis,database,Pub/Sub,Publish/Subscribe messaging
+Redis,database,Caching Patterns,Cache-aside write-through write-behind
+Redis,database,Persistence,RDB snapshots and AOF logging
+Redis,database,Lua Scripting,Server-side scripting with Lua
+Redis,database,Clustering,Redis Cluster for horizontal scaling
+AWS,cloud,EC2,Elastic Compute Cloud virtual servers
+AWS,cloud,S3,Simple Storage Service for object storage
+AWS,cloud,Lambda,Serverless compute service
+AWS,cloud,API Gateway,Managed API endpoint service
+AWS,cloud,DynamoDB,Managed NoSQL database service
+AWS,cloud,CloudFormation,Infrastructure as Code templates
+AWS,cloud,IAM,Identity and Access Management
+AWS,cloud,VPC & Networking,Virtual Private Cloud and networking
+AWS,cloud,ECS/EKS,Container orchestration services
+AWS,cloud,CloudWatch,Monitoring and observability
+Docker,tool,Dockerfiles,Building container images with Dockerfile instructions
+Docker,tool,Docker Compose,Multi-container application orchestration
+Docker,tool,Image Management,Building tagging and pushing images
+Docker,tool,Networking,Container networking and service discovery
+Docker,tool,Volumes,Persistent data storage for containers
+Docker,tool,Multi-stage Builds,Optimizing image size with multi-stage builds
+Kubernetes,tool,Pods & Deployments,Core workload resources
+Kubernetes,tool,Services & Ingress,Network exposure and load balancing
+Kubernetes,tool,ConfigMaps & Secrets,Configuration and sensitive data management
+Kubernetes,tool,Helm Charts,Package management for Kubernetes
+Kubernetes,tool,Namespaces,Cluster resource isolation
+Kubernetes,tool,Resource Limits,CPU and memory resource management
+Git,tool,Branching & Merging,Branch management and merge strategies
+Git,tool,Rebasing,Rewriting commit history with rebase
+Git,tool,Conflict Resolution,Resolving merge conflicts
+Git,tool,Git Flow,Branching workflow models
+Git,tool,Cherry Pick,Applying specific commits to other branches
+Git,tool,Hooks,Pre-commit post-commit and other Git hooks
+Data Structures & Algorithms,concept,Arrays & Strings,Array manipulation and string processing
+Data Structures & Algorithms,concept,Linked Lists,Singly and doubly linked list operations
+Data Structures & Algorithms,concept,Stacks & Queues,LIFO and FIFO data structures
+Data Structures & Algorithms,concept,Trees & Graphs,Binary trees BSTs graph traversal
+Data Structures & Algorithms,concept,Hash Tables,Hash map implementation and collision handling
+Data Structures & Algorithms,concept,Sorting Algorithms,Bubble merge quick heap sort
+Data Structures & Algorithms,concept,Searching Algorithms,Binary search and linear search
+Data Structures & Algorithms,concept,Dynamic Programming,Overlapping subproblems and optimal substructure
+Data Structures & Algorithms,concept,Recursion,Recursive problem solving and base cases
+Data Structures & Algorithms,concept,Big O Analysis,Time and space complexity analysis
+Data Structures & Algorithms,concept,Greedy Algorithms,Locally optimal choices for global optimum
+Data Structures & Algorithms,concept,Backtracking,Systematic enumeration of solution candidates
+System Design,concept,Scalability,Horizontal and vertical scaling strategies
+System Design,concept,Load Balancing,Distributing traffic across servers
+System Design,concept,Caching,Cache strategies and invalidation patterns
+System Design,concept,Database Sharding,Partitioning data across multiple databases
+System Design,concept,Microservices,Microservice architecture patterns
+System Design,concept,Message Queues,Asynchronous messaging with Kafka RabbitMQ SQS
+System Design,concept,API Design,RESTful and GraphQL API design principles
+System Design,concept,CAP Theorem,Consistency Availability Partition tolerance tradeoffs
+System Design,concept,Rate Limiting,Request throttling and rate limiting algorithms
+System Design,concept,Distributed Systems,Consensus replication and fault tolerance

@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from app.api.v1 import (
     auth, users, organizations, health, taxonomy, questions, assessments,
     candidates, test_taking, sandbox, resumes, analytics, system_settings,
-    code_playback, insights, templates, reports, live_interview,
+    code_playback, insights, templates, reports, live_interview, proctoring,
 )
 
 api_router = APIRouter()
@@ -26,3 +26,4 @@ api_router.include_router(insights.router, prefix="/insights", tags=["insights"]
 api_router.include_router(templates.router, prefix="/templates", tags=["templates"])
 api_router.include_router(reports.router, prefix="/reports", tags=["reports"])
 api_router.include_router(live_interview.router, prefix="/live-interview", tags=["live-interview"])
+api_router.include_router(proctoring.router, prefix="/proctoring", tags=["proctoring"])

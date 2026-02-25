@@ -7,6 +7,9 @@ import {
   Send,
   AlertTriangle,
   Loader2,
+  CloudOff,
+  CheckCircle2,
+  RefreshCcw,
 } from 'lucide-react';
 import { useTestStore } from '../../store/testStore';
 import { useTimer } from '../../hooks/useTimer';
@@ -40,6 +43,9 @@ export default function TestPage() {
   const submitTest = useTestStore((s) => s.submitTest);
 
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error' | 'offline'>('idle');
   const autoSaveRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -77,26 +83,61 @@ export default function TestPage() {
   }, [navigate]);
 
   useProctoring({
-    enabled: !!proctoringConfig,
+    enabled: true,  // Always enforce baseline: fullscreen, tab-switch, devtools blocking
     onTerminated: handleTerminated,
   });
+
+  // ----- Offline Tracking -----
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      toast.success('Back online! Syncing your progress...', { icon: '🌐' });
+      setSaveStatus('idle');
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      setSaveStatus('offline');
+      toast.error('Working offline. Progress will sync when reconnected.', { duration: 5000, icon: '📡' });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // ----- Auto-save -----
   useEffect(() => {
     if (status !== 'in_progress') return;
 
-    autoSaveRef.current = setInterval(() => {
+    autoSaveRef.current = setInterval(async () => {
+      if (!navigator.onLine) {
+        setSaveStatus('offline');
+        return;
+      }
+
       const state = useTestStore.getState();
       const q = state.questions[state.currentQuestionIndex];
       if (q) {
-        state.saveCurrentResponse(q.id).catch(() => {});
+        setSaveStatus('saving');
+        try {
+          await state.saveCurrentResponse(q.id);
+          setSaveStatus('saved');
+          setLastSaved(new Date());
+          setTimeout(() => setSaveStatus('idle'), 3000);
+        } catch {
+          setSaveStatus('error');
+        }
       }
     }, AUTO_SAVE_INTERVAL);
 
     return () => {
       if (autoSaveRef.current) clearInterval(autoSaveRef.current);
     };
-  }, [status]);
+  }, [status, isOnline]);
 
   // ----- Redirect if no session -----
   useEffect(() => {
@@ -108,21 +149,21 @@ export default function TestPage() {
   // ----- Navigation -----
   const handlePrev = () => {
     if (currentQuestion) {
-      saveCurrentResponse(currentQuestion.id).catch(() => {});
+      saveCurrentResponse(currentQuestion.id).catch(() => { });
     }
     setCurrentQuestion(currentQuestionIndex - 1);
   };
 
   const handleNext = () => {
     if (currentQuestion) {
-      saveCurrentResponse(currentQuestion.id).catch(() => {});
+      saveCurrentResponse(currentQuestion.id).catch(() => { });
     }
     setCurrentQuestion(currentQuestionIndex + 1);
   };
 
   const handleNavigate = (index: number) => {
     if (currentQuestion) {
-      saveCurrentResponse(currentQuestion.id).catch(() => {});
+      saveCurrentResponse(currentQuestion.id).catch(() => { });
     }
     setCurrentQuestion(index);
   };
@@ -188,44 +229,80 @@ export default function TestPage() {
     >
       {/* Top bar */}
       <div
-        className="flex items-center justify-between px-4 py-2.5 border-b shrink-0"
+        className="flex flex-col sm:flex-row items-center justify-between px-4 py-2 sm:py-2.5 border-b gap-2 sm:gap-0 shrink-0"
         style={{
           backgroundColor: 'var(--card-bg)',
           borderColor: 'var(--border)',
         }}
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between w-full sm:w-auto gap-4">
           <Timer formattedTime={formattedTime} timerColor={timerColor} />
-          <span
-            className="text-xs font-medium px-2 py-1 rounded"
-            style={{
-              backgroundColor: 'var(--bg-secondary)',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            {answeredCount}/{questions.length} answered
-          </span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
+            <span
+              className="text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:py-1 rounded whitespace-nowrap"
+              style={{
+                backgroundColor: 'var(--bg-secondary)',
+                color: 'var(--text-secondary)',
+              }}
+            >
+              {answeredCount}/{questions.length} answered
+            </span>
+
+            {/* Sync Status */}
+            <div className="flex items-center gap-1.5 px-1 sm:px-0">
+              {saveStatus === 'saving' && (
+                <>
+                  <RefreshCcw size={10} className="animate-spin text-blue-500" />
+                  <span className="text-[10px] text-blue-500 font-medium">Saving...</span>
+                </>
+              )}
+              {saveStatus === 'saved' && (
+                <>
+                  <CheckCircle2 size={10} className="text-emerald-500" />
+                  <span className="text-[10px] text-emerald-500 font-medium">Saved</span>
+                </>
+              )}
+              {saveStatus === 'offline' && (
+                <>
+                  <CloudOff size={10} className="text-amber-500" />
+                  <span className="text-[10px] text-amber-500 font-medium">Offline</span>
+                </>
+              )}
+              {saveStatus === 'error' && (
+                <>
+                  <AlertTriangle size={10} className="text-rose-500" />
+                  <span className="text-[10px] text-rose-500 font-medium">Error saving</span>
+                </>
+              )}
+              {saveStatus === 'idle' && lastSaved && (
+                <span className="text-[10px] text-gray-500">
+                  Last saved {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between w-full sm:w-auto gap-3">
           {/* Violations badge */}
           {violations > 0 && (
             <span
-              className="text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5"
+              className="text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-1 rounded-full flex items-center gap-1.5"
               style={{
                 backgroundColor: 'rgba(239, 68, 68, 0.1)',
                 color: 'var(--danger)',
               }}
             >
               <AlertTriangle size={12} />
-              {violations}/{maxViolations}
+              <span className="hidden xs:inline">{violations}/{maxViolations} Violations</span>
+              <span className="xs:hidden">{violations}/{maxViolations}</span>
             </span>
           )}
 
           <button
             onClick={() => setShowSubmitConfirm(true)}
             disabled={loading}
-            className="px-4 py-1.5 rounded-lg text-white text-sm font-medium flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+            className="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-lg text-white text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
             style={{ backgroundColor: '#10b981' }}
           >
             <Send size={14} />
@@ -235,17 +312,17 @@ export default function TestPage() {
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 flex min-h-0">
-        {/* Left sidebar - Question Navigator */}
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
+        {/* Sidebar / Top Navigator on mobile */}
         <div
-          className="w-56 shrink-0 border-r p-4 overflow-y-auto"
+          className="w-full lg:w-56 lg:shrink-0 border-b lg:border-b-0 lg:border-r p-3 lg:p-4 overflow-x-auto lg:overflow-y-auto"
           style={{
             backgroundColor: 'var(--card-bg)',
             borderColor: 'var(--border)',
           }}
         >
           <h3
-            className="text-xs font-semibold uppercase tracking-wide mb-3"
+            className="text-xs font-semibold uppercase tracking-wide mb-3 hidden lg:block"
             style={{ color: 'var(--text-muted)' }}
           >
             Questions
@@ -259,7 +336,7 @@ export default function TestPage() {
         </div>
 
         {/* Right main area */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Question content */}
           <div className="flex-1 overflow-y-auto p-6">
             <div className="max-w-3xl mx-auto">
@@ -281,7 +358,7 @@ export default function TestPage() {
 
           {/* Bottom navigation bar */}
           <div
-            className="flex items-center justify-between px-6 py-3 border-t shrink-0"
+            className="flex items-center justify-between px-4 sm:px-6 py-3 border-t shrink-0 gap-2"
             style={{
               backgroundColor: 'var(--card-bg)',
               borderColor: 'var(--border)',
@@ -290,7 +367,7 @@ export default function TestPage() {
             <button
               onClick={handlePrev}
               disabled={currentQuestionIndex === 0}
-              className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+              className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-1.5 transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
               style={{
                 backgroundColor: 'var(--bg-secondary)',
                 color: 'var(--text-primary)',
@@ -298,12 +375,12 @@ export default function TestPage() {
               }}
             >
               <ChevronLeft size={16} />
-              Previous
+              <span className="hidden xs:inline">Previous</span>
             </button>
 
             <button
               onClick={handleToggleFlag}
-              className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-1.5 transition-colors cursor-pointer whitespace-nowrap"
               style={{
                 backgroundColor: currentResponse?.is_flagged
                   ? 'rgba(245, 158, 11, 0.15)'
@@ -315,19 +392,20 @@ export default function TestPage() {
               }}
             >
               <Flag size={14} />
-              {currentResponse?.is_flagged ? 'Flagged' : 'Flag for Review'}
+              <span className="hidden xs:inline">{currentResponse?.is_flagged ? 'Flagged' : 'Flag for Review'}</span>
+              <span className="xs:hidden">{currentResponse?.is_flagged ? 'Flag' : 'Flag'}</span>
             </button>
 
             <button
               onClick={handleNext}
               disabled={currentQuestionIndex === questions.length - 1}
-              className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+              className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-1.5 transition-colors disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
               style={{
                 backgroundColor: 'var(--accent)',
                 color: '#fff',
               }}
             >
-              Next
+              <span className="hidden xs:inline">Next</span>
               <ChevronRight size={16} />
             </button>
           </div>

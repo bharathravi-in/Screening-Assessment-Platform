@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.permissions import get_candidate_session
+from app.core.permissions import get_candidate_session, get_candidate_session_any_status
 from app.core.security import create_candidate_token
 from app.db.session import get_db
 from app.models.assessment import Assessment, AssessmentQuestion
@@ -456,7 +456,7 @@ async def _upsert_response(
         select(AssessmentQuestion).where(
             AssessmentQuestion.assessment_id == session.assessment_id,
             AssessmentQuestion.question_id == question_id,
-        )
+        ).options(selectinload(AssessmentQuestion.question))
     )
     aq = result.scalar_one_or_none()
     if not aq:
@@ -685,7 +685,7 @@ async def submit_test(
 
 @router.get("/complete", response_model=CompletionResponse)
 async def get_completion(
-    session: CandidateSession = Depends(get_candidate_session),
+    session: CandidateSession = Depends(get_candidate_session_any_status),
     db: AsyncSession = Depends(get_db),
 ):
     """Return completion screen data for a finished test."""

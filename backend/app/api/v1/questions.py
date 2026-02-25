@@ -1,7 +1,10 @@
+import csv
+import io
 import logging
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -16,6 +19,7 @@ from app.models.question import (
     QuestionTestCase,
 )
 from app.models.user import User, UserRole
+from app.models.taxonomy import Skill as TaxSkill, Technology as TaxTech
 logger = logging.getLogger(__name__)
 from app.schemas.question import (
     QuestionCodeStubCreate,
@@ -491,4 +495,207 @@ async def ai_generate_and_save_questions(
         "count": len(saved_questions),
         "saved_to_bank": True,
     }
+
+
+# ---------------------------------------------------------------------------
+# POST /questions/bulk-upload  — Import questions from CSV file
+# ---------------------------------------------------------------------------
+
+@router.post("/bulk-upload")
+async def bulk_upload_questions(
+    file: UploadFile = File(...),
+    current_user: User = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db),
+):
+    """Upload a CSV file to bulk-create questions.
+
+    CSV columns: technology, skill, type, difficulty, title, body,
+                 option_a, option_b, option_c, option_d, correct_answer,
+                 explanation, time_limit_seconds, max_score
+    """
+    from app.core.permissions import is_super_admin as _is_sa
+
+    content = await file.read()
+    try:
+        text = content.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        text = content.decode("latin-1")
+
+    reader = csv.DictReader(io.StringIO(text))
+    if not reader.fieldnames:
+        raise HTTPException(status_code=400, detail="Empty or invalid CSV")
+
+    # Normalize column headers
+    col_map = {f.strip().lower().replace(" ", "_"): f for f in reader.fieldnames}
+
+    org_id = None if _is_sa(current_user) else current_user.organization_id
+
+    # Pre-load skills for name-based lookup
+    skill_result = await db.execute(
+        select(TaxSkill).options(selectinload(TaxSkill.technology))
+    )
+    skills_all = skill_result.unique().scalars().all()
+    # Map (tech_name_lower, skill_name_lower) -> skill
+    skill_lookup: dict[tuple[str, str], TaxSkill] = {}
+    for s in skills_all:
+        if s.technology:
+            skill_lookup[(s.technology.name.lower(), s.name.lower())] = s
+
+    created = 0
+    skipped = 0
+    errors: list[str] = []
+
+    option_labels = ["A", "B", "C", "D"]
+
+    for row_num, row in enumerate(reader, start=2):
+        try:
+            tech_name = (row.get(col_map.get("technology", ""), "") or "").strip()
+            skill_name = (row.get(col_map.get("skill", ""), "") or "").strip()
+            q_type = (row.get(col_map.get("type", ""), "") or "mcq").strip().lower()
+            difficulty = (row.get(col_map.get("difficulty", ""), "") or "intermediate").strip().lower()
+            title = (row.get(col_map.get("title", ""), "") or "").strip()
+            body = (row.get(col_map.get("body", ""), "") or "").strip()
+            explanation = (row.get(col_map.get("explanation", ""), "") or "").strip()
+
+            if not title:
+                skipped += 1
+                continue
+
+            time_limit = 300
+            try:
+                tl_val = row.get(col_map.get("time_limit_seconds", ""), "")
+                if tl_val and str(tl_val).strip():
+                    time_limit = int(tl_val)
+            except (ValueError, TypeError):
+                pass
+
+            max_score = 10.0
+            try:
+                ms_val = row.get(col_map.get("max_score", ""), "")
+                if ms_val and str(ms_val).strip():
+                    max_score = float(ms_val)
+            except (ValueError, TypeError):
+                pass
+
+            question = Question(
+                organization_id=org_id,
+                created_by_id=current_user.id,
+                type=q_type,
+                difficulty=difficulty,
+                title=title,
+                body=body or title,
+                explanation=explanation or None,
+                time_limit_seconds=time_limit,
+                max_score=max_score,
+            )
+            db.add(question)
+            await db.flush()
+
+            # Parse option columns
+            correct_letter = (row.get(col_map.get("correct_answer", ""), "") or "").strip().upper()
+            for idx, label in enumerate(option_labels):
+                opt_col = col_map.get(f"option_{label.lower()}", "")
+                opt_text = (row.get(opt_col, "") or "").strip() if opt_col else ""
+                if opt_text:
+                    db.add(QuestionOption(
+                        question_id=question.id,
+                        label=label,
+                        text=opt_text,
+                        is_correct=(label == correct_letter),
+                        order_index=idx,
+                    ))
+
+            # Link to skill by name
+            if tech_name and skill_name:
+                skill = skill_lookup.get((tech_name.lower(), skill_name.lower()))
+                if skill:
+                    db.add(QuestionTag(question_id=question.id, skill_id=skill.id))
+
+            created += 1
+        except Exception as e:
+            errors.append(f"Row {row_num}: {str(e)}")
+            skipped += 1
+
+    await db.flush()
+
+    return {
+        "created_questions": created,
+        "skipped": skipped,
+        "errors": errors[:20],  # limit error detail
+    }
+
+
+# ---------------------------------------------------------------------------
+# GET /questions/export  — Download questions as CSV
+# ---------------------------------------------------------------------------
+
+@router.get("/export")
+async def export_questions(
+    current_user: User = Depends(require_roles("admin")),
+    db: AsyncSession = Depends(get_db),
+):
+    """Export all questions as a CSV file."""
+    query = (
+        _question_query()
+        .where(Question.is_active == True)
+        .order_by(Question.created_at.desc())
+    )
+    result = await db.execute(query)
+    questions = result.unique().scalars().all()
+
+    # Build skill_id -> (tech_name, skill_name) lookup
+    skill_result = await db.execute(
+        select(TaxSkill).options(selectinload(TaxSkill.technology))
+    )
+    skill_map: dict[str, tuple[str, str]] = {}
+    for s in skill_result.unique().scalars().all():
+        tech_name = s.technology.name if s.technology else ""
+        skill_map[str(s.id)] = (tech_name, s.name)
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "technology", "skill", "type", "difficulty", "title", "body",
+        "option_a", "option_b", "option_c", "option_d", "correct_answer",
+        "explanation", "time_limit_seconds", "max_score",
+    ])
+
+    for q in questions:
+        tech_name = ""
+        skill_name = ""
+        if q.tags:
+            info = skill_map.get(str(q.tags[0].skill_id), ("", ""))
+            tech_name, skill_name = info
+
+        # Gather options by label
+        opts = {o.label.upper(): o for o in sorted(q.options, key=lambda o: o.order_index)}
+        correct = ""
+        for label in ["A", "B", "C", "D"]:
+            if label in opts and opts[label].is_correct:
+                correct = label
+                break
+
+        writer.writerow([
+            tech_name,
+            skill_name,
+            q.type,
+            q.difficulty,
+            q.title,
+            q.body,
+            opts.get("A", type("", (), {"text": ""})).text,
+            opts.get("B", type("", (), {"text": ""})).text,
+            opts.get("C", type("", (), {"text": ""})).text,
+            opts.get("D", type("", (), {"text": ""})).text,
+            correct,
+            q.explanation or "",
+            q.time_limit_seconds or "",
+            q.max_score,
+        ])
+
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=questions_export.csv"},
+    )
 
